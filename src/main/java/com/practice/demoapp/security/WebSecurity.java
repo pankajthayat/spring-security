@@ -24,16 +24,26 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.csrf().disable()
-            .authorizeRequests().antMatchers(HttpMethod.POST, "/users")
+            .authorizeRequests().antMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL)
              .permitAll()
                 .anyRequest()
-                .authenticated();
+                .authenticated()
+                .and().
+                addFilter(new AuthenticationFilter(authenticationManager()));
+
+        //Note : add authenticationFilter to webSecurity...
+
         //antPattern : SecurityConstants.SIGN_UP_URL  => make this in constant file
     }
+
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         //super.configure(auth);
+        //userdetailsService interface helps to get details from db
         auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
     }
 }
+
+
+// /login is default login url configured in our url..we can create custom url
