@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @EnableWebSecurity
@@ -29,7 +30,11 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .anyRequest()
                 .authenticated()
                 .and().
-                addFilter(new AuthenticationFilter(authenticationManager()));
+                addFilter(getAuthenticationFilter())// for authentication
+                .addFilter(new AutherizationFilter(authenticationManager()))// this is for authreisation
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                //addFilter(new AuthenticationFilter(authenticationManager())); // when we add this default login set up
 
         //Note : add authenticationFilter to webSecurity...
 
@@ -42,6 +47,12 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         //super.configure(auth);
         //userdetailsService interface helps to get details from db
         auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
+    }
+
+    public AuthenticationFilter getAuthenticationFilter() throws Exception{
+        final AuthenticationFilter filter = new AuthenticationFilter(authenticationManager());
+        filter.setFilterProcessesUrl("/users/login");
+        return filter;
     }
 }
 

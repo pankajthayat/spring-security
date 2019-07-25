@@ -21,3 +21,5 @@ public class SpringApplicationContext implements ApplicationContextAware {
     }
 }
 
+//this class needs to available as Bean else it will thow nullpointer exception... so add in main class
+//why we need to add it there for bean...why cant we use some annotation....check if some annotaion is avialable or its reason
