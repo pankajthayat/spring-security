@@ -2,6 +2,7 @@ package com.practice.demoapp.io.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity(name = "USERS")
 public class UserEntity implements Serializable {
@@ -29,6 +30,19 @@ public class UserEntity implements Serializable {
     // here we are not setting default value by column def....its not portable to all the db...so explicity set the default...@Column(nullable = false, columnDefinition = "boolean default false")
     @Column(nullable = false)
     private Boolean emailVerificationStatus = false;
+
+
+    //UserEntity is parent here...will be stored in dababase and bcoz userEntity contain Addess we can call... addess are owned by userDetails
+    @OneToMany(mappedBy = "userDetails", cascade = CascadeType.ALL ) // name of the field that own in the relationship
+    private List<AddressEntity> addresses; //CascadeType.ALL =>operation will propagate to list of Address as well
+
+    public List<AddressEntity> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<AddressEntity> addresses) {
+        this.addresses = addresses;
+    }
 
 //    public static long getSerialVerionUID() {
 //        return serialVerionUID;

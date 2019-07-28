@@ -7,7 +7,9 @@ import com.practice.demoapp.modal.ErrorMessages;
 import com.practice.demoapp.repository.UserRepository;
 import com.practice.demoapp.service.UserService;
 import com.practice.demoapp.shared.Utils;
+import com.practice.demoapp.shared.dto.AddressDto;
 import com.practice.demoapp.shared.dto.UserDto;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -39,16 +41,25 @@ public class UserServiceImpl implements UserService {
         if(userRepository.findUserByEmail(user.getEmail()) !=null)
             throw new RuntimeException("Record already exist");
         //user.setId(12321L);
-        String publicUserId = utils.generateUserId(10);
+        for(int i=0;i<user.getAddresses().size();i++){
+            AddressDto addressDto = user.getAddresses().get(i);
+            addressDto.setUserDetails(user);
+            addressDto.setAddressId(utils.generateAddressId(30));
+            user.getAddresses().set(i, addressDto);
+        }
+         String publicUserId = utils.generateUserId(10);
         UserEntity userEntity = new UserEntity();
-        BeanUtils.copyProperties(user, userEntity);
+        //BeanUtils.copyProperties(user, userEntity);
+
+        ModelMapper modelMapper = new ModelMapper();
+        userEntity = modelMapper.map(user,UserEntity.class);
         userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userEntity.setUserId(publicUserId);
-       UserEntity storedUserDetails =  userRepository.save(userEntity);
+         UserEntity storedUserDetails =  userRepository.save(userEntity);
        UserDto retunedValue = new UserDto();
-       BeanUtils.copyProperties(storedUserDetails, retunedValue); //for object filed beanUtils is giving error...check if it works for Object or not....for Long in  dto and enity its giving error
-
-      return retunedValue;
+       //BeanUtils.copyProperties(storedUserDetails, retunedValue); //for object filed beanUtils is giving error...check if it works for Object or not....for Long in  dto and enity its giving error
+        retunedValue = modelMapper.map(storedUserDetails, UserDto.class);
+         return retunedValue;
     }
 
     //by implementing this method we help spring framwork to load the user details from db by username ie.email
